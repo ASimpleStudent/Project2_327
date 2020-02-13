@@ -6,23 +6,23 @@
  */
 
 //============================================================================
-//	TODO add necessary includes here
+//	Necessary includes here
 //============================================================================
 #define ARRAY_FUNCTIONS_H_
 
-#include "array_functions.h"
-#include "utilities.h"
-#include "constants.h"
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "array_functions.h"
+#include "utilities.h"
+#include "constants.h"
 using namespace constants;
 using namespace std;
 
 
 //============================================================================
-//	stuff you will need
+// Functions
 //============================================================================
 
 /*
@@ -43,31 +43,52 @@ reference globalReferenceArray[100];
  * variable to keep track of total number of references in the array
  */
 int nextAvailSlot = 0;
-int cumulativeWords = 0;
+int uniqueWords = 0;
 
-//TODO define all functions in header file
-
-//zero out array that tracks words and their occurrences
+/*
+ * zero out array that tracks words and their occurrences
+ */
 void clearArray() {
 	for (int i = 0; i < nextAvailSlot; i++) {
 		globalReferenceArray[i].word = "";
 		globalReferenceArray[i].num_instances = 0;
 	}
 	nextAvailSlot = 0;
-	cumulativeWords = 0;
+	uniqueWords = 0;
 }
 
-//how many unique words are in array
+/*
+ * how many unique words are in array
+ */
 int getArraySize() {
-
+	return uniqueWords;
 }
 
-//get data at a particular location
+/*
+ * Gets the word at a given location
+ */
 std::string getArrayWordAt(int i) {
-
+	return globalReferenceArray[i].word;
 }
-int getArrayWord_NumbOccur_At(int i){
 
+/*
+ * Gets the number of instances of the word at the given location
+ */
+int getArrayWord_NumbOccur_At(int i) {
+	return globalReferenceArray[i].num_instances;
+}
+
+/*
+ * This function takes myString and searches for tokens separated by
+ * constants::CHAR_TO_SEARCH_FOR (a space). This constant is defined in file
+ * constants.h. For each token it finds it calls ProcessToken( tempToken).
+ */
+void extractTokensFromLine(std::string &myString) {
+	stringstream ss(myString);
+	string tempToken;
+	while (getline(ss, tempToken, CHAR_TO_SEARCH_FOR)) {
+		processToken(tempToken);
+	}
 }
 
 /*loop through whole file, one line at a time
@@ -122,16 +143,22 @@ void sortArray(constants::sortOrder so) {
 }
 
 
-//TODO look in utilities.h for useful functions, particularly strip_unwanted_chars!
-//uppercase a string, useful for confirming that To==TO==to==tO
+// utilities.h useful functions
+
+/*
+ * Uppercase a string,
+ */
 void toUpper(std::string &myString) {
 
 }
 
-//take an int return a string
+/*
+ * Take an int return a string
+ */
 std::string intToString(int Number) {
 
 }
+
 
 void strip_char(std::string &s, char badchar) {
 
