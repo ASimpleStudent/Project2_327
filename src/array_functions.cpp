@@ -36,7 +36,7 @@ struct reference {
 /*
  * add a global array of entry structs (global to this file)
  */
-reference globalReferenceArray[100];
+reference globalReferenceArray[150];
 
 /*
  * variable to keep track of next available slot in array
@@ -45,9 +45,14 @@ reference globalReferenceArray[100];
  * variable to determine whether or not a token is correct
  */
 int nextAvailSlot = 0;
-int totalEntries = 0;
 int uniqueWords = 0;
 bool isCorrectToken = false;
+bool BOOL_SUCCESS = true;
+bool BOOL_FAILURE = false;
+reference tempRef1;
+reference tempRef2;
+string tempWord1 = "";
+string tempWord2 = "";
 
 
 /*
@@ -83,47 +88,29 @@ int getArrayWord_NumbOccur_At(int i) {
 	return globalReferenceArray[i].num_instances;
 }
 
-/* loop through whole file, one line at a time
- * call processLine on each line
- * returns false: myfstream is not open
- *         true: otherwise
- */
-bool processFile(std::fstream &myfstream) {
-
-}
-
-/*
- * take 1 line and extract all the tokens from it
- *  feed each token to processToken for recording
- */
-void processLine(std::string &myString) {
-
-}
-
 /*Keep track of how many times each token seen*/
 void processToken(std::string &token) {
 	strip_unwanted_chars(token);
-	if (token == " " && token != "") {
+	if (token != " " && token != "") {
 		isCorrectToken = false;
-		string temp1 = "";
-		string temp2 = "";
+
 		for (int i = 0; i < nextAvailSlot; i++) {
-			temp1 = token;
-			toUpper(temp1);
-			temp2 = globalReferenceArray[i].word;
-			if(globalReferenceArray[i].word == token || globalReferenceArray[i].word == temp1 || temp1 == temp2) {
-				globalReferenceArray[i].num_instances += 1;
+			tempWord1 = token;
+			tempWord2 = globalReferenceArray[i].word;
+			toUpper(tempWord1); toUpper(tempWord2);
+			if (globalReferenceArray[i].word == token || globalReferenceArray[i].word == tempWord1 || tempWord1 == tempWord2) {
+				globalReferenceArray[i].num_instances++;
 				isCorrectToken = true;
 			}
 		}
-		temp1 = "";
-		temp2 = "";
+		tempWord1 = "";
+		tempWord2 = "";
 
 		if (isCorrectToken == false) {
 			globalReferenceArray[nextAvailSlot].word = token;
 			globalReferenceArray[nextAvailSlot].num_instances = 1;
-			nextAvailSlot += 1;
-			totalEntries += 1;
+			nextAvailSlot++;
+			uniqueWords++;
 		}
 	}
 }
@@ -141,21 +128,46 @@ void extractTokensFromLine(std::string &myString) {
 	}
 }
 
+/*
+ * take 1 line and extract all the tokens from it
+ *  feed each token to processToken for recording
+ */
+void processLine(std::string &myString) {
+	extractTokensFromLine(myString);
+}
+
+/*
+ * loop through whole file, one line at a time
+ * call processLine on each line
+ * returns false: myfstream is not open
+ *         true: otherwise
+ */
+bool processFile(std::fstream &myfstream) {
+	if (!myfstream.is_open()) {
+		return BOOL_FAILURE;
+	}
+	else {
+		string input;
+		while (!myfstream.eof()) {
+			getline(myfstream, input);
+			processLine(input);
+		}
+		return BOOL_SUCCESS;
+	}
+}
+
 /*if you are debugging the file must be in the project parent directory
   in this case Project2 with the .project and .cProject files*/
 bool openFile(std::fstream& myfile, const std::string& myFileName,
 		std::ios_base::openmode mode) {
 	myfile.open(myFileName);
 	if (myfile.is_open()) {
-		return true;
+		return BOOL_SUCCESS;
 	}
 	else {
-		return false;
+		return BOOL_FAILURE;
 	}
 }
-
-
-
 
 /*
  * If myfile is open then close it
@@ -174,7 +186,7 @@ void closeFile(std::fstream& myfile) {
 int writeArraytoFile(const std::string &outputfilename) {
 	ofstream output;
 	output.open(outputfilename);
-	if (totalEntries == 0 || nextAvailSlot == 0) {
+	if (uniqueWords == 0 || nextAvailSlot == 0) {
 		return FAIL_NO_ARRAY_DATA;
 	}
 	else if (!output.is_open()) {
@@ -188,27 +200,6 @@ int writeArraytoFile(const std::string &outputfilename) {
 }
 
 /*
- * Sorts the globalReferenceArray based on the number of occurrences
- */
-void sortNumOcc() {
-
-}
-
-/*
- * Sorts the globalReferenceArray in descending order
- */
-void sortDescending() {
-
-}
-
-/*
- * Sorts the globalReferenceArray in ascending order
- */
-void sortAscending() {
-
-}
-
-/*
  * Sort globalReferenceArray based on the sortOrder enum value.
  * The presence of the enum implies a switch statement
  */
@@ -217,13 +208,46 @@ void sortArray(constants::sortOrder so) {
 	case NONE:
 		break;
 	case NUMBER_OCCURRENCES:
-		sortNumOcc();
+		for (int i = 0; i < nextAvailSlot; i++) {
+			for (int j = 0; j < nextAvailSlot; j++) {
+				if (globalReferenceArray[j].num_instances < globalReferenceArray[j + 1].num_instances) {
+					tempRef1 = globalReferenceArray[j];
+					tempRef2 = globalReferenceArray[j + 1];
+					globalReferenceArray[j] = tempRef2;
+					globalReferenceArray[j + 1] = tempRef1;
+				}
+			}
+		}
 		break;
 	case DESCENDING:
-		sortDescending();
+		for (int i = 0; i < nextAvailSlot; i++) {
+			for (int j = 0; j < nextAvailSlot - 1; j++) {
+				tempWord1 = globalReferenceArray[j].word;
+				tempWord2 = globalReferenceArray[j + 1].word;
+				toUpper(tempWord1); toUpper(tempWord2);
+				if (tempWord1 < tempWord2) {
+						tempRef1 = globalReferenceArray[j];
+						tempRef2 = globalReferenceArray[j + 1];
+						globalReferenceArray[j] = tempRef2;
+						globalReferenceArray[j + 1] = tempRef1;
+					}
+				}
+		}
 		break;
 	case ASCENDING:
-		sortAscending();
+		for (int i = 0; i < nextAvailSlot; i++) {
+				for (int j = 0; j < nextAvailSlot - 1; j++) {
+					tempWord1 = globalReferenceArray[j].word;
+					tempWord2 = globalReferenceArray[j + 1].word;
+					toUpper(tempWord1); toUpper(tempWord2);
+					if (tempWord1 > tempWord2) {
+						tempRef1 = globalReferenceArray[j];
+						tempRef2 = globalReferenceArray[j + 1];
+						globalReferenceArray[j] = tempRef2;
+						globalReferenceArray[j + 1] = tempRef1;
+					}
+				}
+		}
 		break;
 	}
 }
