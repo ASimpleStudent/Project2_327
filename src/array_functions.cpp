@@ -41,8 +41,11 @@ reference globalReferenceArray[150];
 /*
  * variable to keep track of next available slot in array
  * variable to keep track of how many entries in globalReferenceArray
- * variable to keep track of total number of references in the array
  * variable to determine whether or not a token is correct
+ * boolean function success indicator
+ * boolean function failure indicator
+ * two temporary reference structs for comparison
+ * two temporary string for comparison
  */
 int nextAvailSlot = 0;
 int uniqueWords = 0;
@@ -88,7 +91,9 @@ int getArrayWord_NumbOccur_At(int i) {
 	return globalReferenceArray[i].num_instances;
 }
 
-/*Keep track of how many times each token seen*/
+/*
+ * Keep track of how many times each token seen
+ */
 void processToken(std::string &token) {
 	strip_unwanted_chars(token);
 	if (token != " " && token != "") {
@@ -156,8 +161,9 @@ bool processFile(std::fstream &myfstream) {
 	}
 }
 
-/*if you are debugging the file must be in the project parent directory
-  in this case Project2 with the .project and .cProject files*/
+/*
+ * a function to open a file to read from or write to
+ */
 bool openFile(std::fstream& myfile, const std::string& myFileName,
 		std::ios_base::openmode mode) {
 	myfile.open(myFileName);
@@ -170,7 +176,7 @@ bool openFile(std::fstream& myfile, const std::string& myFileName,
 }
 
 /*
- * If myfile is open then close it
+ * if myfile is open then close it
  */
 void closeFile(std::fstream& myfile) {
 	if (myfile.is_open()) {
@@ -178,11 +184,12 @@ void closeFile(std::fstream& myfile) {
 	}
 }
 
-/* serializes all content in myEntryArray to file outputfilename
+/*
+ * serializes all content in myEntryArray to file outputfilename
  * returns  FAIL_FILE_DID_NOT_OPEN if cannot open outputfilename
  * 			FAIL_NO_ARRAY_DATA if there are 0 entries in myEntryArray
  * 			SUCCESS if all data is written and outputfilename closes OK
- * */
+ */
 int writeArraytoFile(const std::string &outputfilename) {
 	ofstream output;
 	output.open(outputfilename);
